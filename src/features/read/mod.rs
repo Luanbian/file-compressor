@@ -19,6 +19,5 @@ pub fn main(compressed_file: &str) -> Result<(), Box<dyn Error>> {
             println!("File content isn't UTF-8");
         }
     }
-
     Ok(())
 }

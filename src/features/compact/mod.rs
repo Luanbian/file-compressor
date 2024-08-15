@@ -35,10 +35,7 @@ pub fn main(folder_to_compass: &str, compressed_file: &str) -> Result<(), Box<dy
             zip.write_all(&buffer)?;
         }
     }
-
     zip.finish()?;
-
     println!("Files compressed successfully to {:?}", zip_path);
-
     Ok(())
 }
