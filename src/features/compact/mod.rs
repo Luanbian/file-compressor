@@ -7,9 +7,13 @@ use std::u64;
 use zip::write::{ExtendedFileOptions, FileOptions, ZipWriter};
 
 pub fn main() -> Result<(), Box<dyn Error>> {
+    let dir_path = Path::new("to_compress");
+    if !dir_path.exists() {
+        return Err(Box::from("Directory to_compress not found"));
+    }
+
     let zip_path = Path::new("compressed_files.zip");
     let zip_file: File = File::create(&zip_path)?;
-    let dir_path = Path::new("to_comprass");
 
     let mut zip = ZipWriter::new(zip_file);
 
