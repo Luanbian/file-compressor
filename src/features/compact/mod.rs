@@ -1,33 +1,35 @@
 use std::error::Error;
 use std::io::{self, Read};
-use std::fs::File;
+use std::fs::{read_dir, File};
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::u64;
 use zip::write::{ExtendedFileOptions, FileOptions, ZipWriter};
 
 pub fn main() -> Result<(), Box<dyn Error>> {
     let zip_path = Path::new("compressed_files.zip");
     let zip_file: File = File::create(&zip_path)?;
+    let dir_path = Path::new("to_comprass");
 
     let mut zip = ZipWriter::new(zip_file);
 
-    let files_to_comprass: Vec<PathBuf> = vec![
-        PathBuf::from("image.png"),
-        PathBuf::from("image2.png")
-    ];
-
     let options: FileOptions<ExtendedFileOptions> = FileOptions::default().compression_method(zip::CompressionMethod::DEFLATE);
 
-    for file_path in &files_to_comprass {
-        let file = File::open(file_path)?;
-        let file_name = file_path.file_name().unwrap().to_str().unwrap();
+    for child in read_dir(dir_path)? {
+        let child = child?;
+        let file_path = child.path();
 
-        zip.start_file(file_name, options.clone())?;
+        if file_path.is_file() {
+            let file = File::open(&file_path)?;
+            let file_name = file_path.file_name().unwrap().to_str().unwrap();
 
-        let mut buffer = Vec::new();
-        io::copy(&mut file.take(u64::MAX), &mut buffer)?;
+            zip.start_file(file_name, options.clone())?;
 
-        zip.write_all(&buffer)?;
+            let mut buffer = Vec::new();
+            io::copy(&mut file.take(u64::MAX), &mut buffer)?;
+
+            zip.write_all(&buffer)?;
+        }
     }
 
     zip.finish()?;
