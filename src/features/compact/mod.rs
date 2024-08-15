@@ -6,13 +6,13 @@ use std::path::Path;
 use std::u64;
 use zip::write::{ExtendedFileOptions, FileOptions, ZipWriter};
 
-pub fn main() -> Result<(), Box<dyn Error>> {
-    let dir_path = Path::new("to_compress");
+pub fn main(folder_to_compass: &str, compressed_file: &str) -> Result<(), Box<dyn Error>> {
+    let dir_path = Path::new(folder_to_compass);
     if !dir_path.exists() {
-        return Err(Box::from("Directory to_compress not found"));
+        return Err(Box::from(format!("Directory {} not found", folder_to_compass)));
     }
 
-    let zip_path = Path::new("compressed_files.zip");
+    let zip_path = Path::new(&compressed_file);
     let zip_file: File = File::create(&zip_path)?;
 
     let mut zip = ZipWriter::new(zip_file);

@@ -2,8 +2,8 @@ use std::{error::Error, fs::File, path::Path};
 use std::io::Read;
 use zip::ZipArchive;
 
-pub fn main() -> Result<(), Box<dyn Error>> {
-    let path = Path::new("compressed_files.zip");
+pub fn main(compressed_file: &str) -> Result<(), Box<dyn Error>> {
+    let path = Path::new(&compressed_file);
 
     let file = File::open(&path)?;
     let mut archive = ZipArchive::new(&file)?;
