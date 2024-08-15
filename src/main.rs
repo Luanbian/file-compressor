@@ -1,8 +1,8 @@
-mod compact;
+mod features;
 
 fn main() {
     println!("Hello, world!");
-    match compact::compact::main() {
+    match  features::compact::main() {
         Ok(_) => println!("Compact with success"),
         Err(e) => eprintln!("Error to compile: {:?}", e)
     }
