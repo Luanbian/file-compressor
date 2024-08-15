@@ -1,36 +1,28 @@
-use std::io;
-
+use std::io::{self, Write};
 mod features;
 
-fn main() {
-    let mut folder_to_compress_name = String::new();
-    println!("Digite o nome da pasta que deseja compactar");
-    match io::stdin().read_line(&mut folder_to_compress_name) {
-        Ok(_) => {
-            let mut compressed_file_name = String::new();
-            println!("Digite o nome do arquivo comprimido");
-            match io::stdin().read_line(&mut compressed_file_name)  {
-                Ok(_) => {
-                    match features::compact::main(folder_to_compress_name.trim(), compressed_file_name.trim()) {
-                        Ok(_) => {
-                            println!("Compact with success");
-                            match  features::read::main(&compressed_file_name.trim()) {
-                                Ok(_) => {},
-                                Err(e) => eprintln!("Error to read file: {:?}", e)
-                            }
-                        },
-                        Err(e) => eprintln!("Error to compile: {:?}", e)
-                    }
-                },
-                Err(e) => eprintln!("Erro ao ler o que digitou: {:?}", e)
-            }
-            
-        },
-        Err(e) => eprintln!("Erro ao ler o que digitou: {:?}", e)
-    }
+fn read_input(prompt: &str) -> io::Result<String> {
+    let mut input = String::new();
+    println!("{}", prompt);
+    io::stdout().flush()?;
+    io::stdin().read_line(&mut input)?;
+    Ok(input.trim().to_string())
 }
 
+fn compress_and_read(folder: &str, compressed_file: &str) -> Result<(), Box<dyn std::error::Error>> {
+    features::compact::main(folder, compressed_file)?;
+    println!("Compact with success");
+    features::read::main(compressed_file)?;
+    Ok(())
+}
 
-
-
-
+fn main() {
+    match (read_input("Digite o nome da pasta que deseja compactar"), read_input("Digite o nome do arquivo comprimido")) {
+        (Ok(folder_to_compress_name), Ok(compressed_file_name)) => {
+            if let Err(e) = compress_and_read(&folder_to_compress_name, &compressed_file_name) {
+                eprintln!("Error: {:?}", e);
+            }
+        },
+        (Err(e), _) | (_, Err(e)) => eprintln!("Erro ao ler o que digitou: {:?}", e),
+    }
+}
