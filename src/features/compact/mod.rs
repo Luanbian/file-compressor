@@ -1,18 +1,38 @@
-use std::{fs::File, io::Write, path::Path};
+use std::error::Error;
+use std::io::{self, Read};
+use std::fs::File;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+use zip::write::{ExtendedFileOptions, FileOptions, ZipWriter};
 
-use zip::{write::{ExtendedFileOptions, FileOptions}, ZipWriter};
+pub fn main() -> Result<(), Box<dyn Error>> {
+    let zip_path = Path::new("compressed_files.zip");
+    let zip_file: File = File::create(&zip_path)?;
 
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let path = Path::new("example.zip");
-    let file = File::create(&path)?;
+    let mut zip = ZipWriter::new(zip_file);
 
-    let mut zip = ZipWriter::new(file);
+    let files_to_comprass: Vec<PathBuf> = vec![
+        PathBuf::from("image.png"),
+        PathBuf::from("image2.png")
+    ];
 
-    zip.start_file::<_, ExtendedFileOptions>("readme.txt", FileOptions::default())?;
-    zip.write_all(b"Hello world!\n")?;
+    let options: FileOptions<ExtendedFileOptions> = FileOptions::default().compression_method(zip::CompressionMethod::DEFLATE);
+
+    for file_path in &files_to_comprass {
+        let file = File::open(file_path)?;
+        let file_name = file_path.file_name().unwrap().to_str().unwrap();
+
+        zip.start_file(file_name, options.clone())?;
+
+        let mut buffer = Vec::new();
+        io::copy(&mut file.take(u64::MAX), &mut buffer)?;
+
+        zip.write_all(&buffer)?;
+    }
+
     zip.finish()?;
 
-    println!("Zip file created!");
+    println!("Files compressed successfully to {:?}", zip_path);
 
     Ok(())
 }
