@@ -3,6 +3,7 @@ use std::process::exit;
 use utils::{show_menu, read_input};
 mod features;
 mod utils;
+mod interface;
 
 
 fn compress_and_read(folder: &str, compressed_file: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -20,7 +21,7 @@ fn extract(folder: &str, extracted_name: &str) -> Result<(), Box<dyn std::error:
 
 fn main() {
     loop {
-        let itens = ["Compactar", "Extrair"];
+        let itens = ["Compactar", "Extrair", "Abrir interface"];
         let selected = show_menu(&itens, true);
 
         match selected {
@@ -43,6 +44,9 @@ fn main() {
                     },
                     (Err(_e), _) | (_,Err(_e)) => eprintln!("Erro ao ler o que digitou")
                 }
+            },
+            3 => {
+                interface::main();
             }
             _ => exit(0)
         }
