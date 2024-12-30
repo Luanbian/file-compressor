@@ -6,10 +6,10 @@ use std::path::Path;
 use std::u64;
 use zip::write::{ExtendedFileOptions, FileOptions, ZipWriter};
 
-pub fn main(folder_to_compass: &str, compressed_file: &str) -> Result<(), Box<dyn Error>> {
+pub fn main(folder_to_compass: &Path, compressed_file: &str) -> Result<(), Box<dyn Error>> {
     let dir_path = Path::new(folder_to_compass);
     if !dir_path.exists() {
-        return Err(Box::from(format!("Directory {} not found", folder_to_compass)));
+        return Err(Box::from(format!("Directory {:?} not found", folder_to_compass)));
     }
 
     let zip_path = Path::new(&compressed_file);

@@ -2,10 +2,10 @@ use std::{error::Error, fs::File, io, path::Path};
 
 use zip::ZipArchive;
 
-pub fn main(extract_file: &str, extracted_name: &str) -> Result<(), Box<dyn Error>> {
+pub fn main(extract_file: &Path, extracted_name: &str) -> Result<(), Box<dyn Error>> {
     let path = Path::new(&extract_file);
     if !path.exists() {
-        return Err(Box::from(format!("file {} to extract not found", extract_file)));
+        return Err(Box::from(format!("file {:?} to extract not found", extract_file)));
     }
 
     let file = File::open(&path)?;

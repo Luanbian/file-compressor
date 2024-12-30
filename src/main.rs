@@ -1,54 +1,42 @@
-use std::process::exit;
+use clap::Parser; 
+use std::path::Path;
 
-use utils::{show_menu, read_input};
 mod features;
-mod utils;
 mod interface;
 
+#[derive(Parser, Debug)]
+pub struct Cli {
+    #[arg(short, long)]
+    input: String,
 
-fn compress_and_read(folder: &str, compressed_file: &str) -> Result<(), Box<dyn std::error::Error>> {
-    features::compact::main(folder, compressed_file)?;
+    #[arg(short, long)]
+    output: String,
+
+    #[arg(short, long)]
+    selected: String,
+}
+
+fn compress_and_read(path: &Path, compressed_file: &str) -> Result<(), Box<dyn std::error::Error>> {
+    features::compact::main(path, compressed_file)?;
     println!("Compact with success");
     features::read::main(compressed_file)?;
     Ok(())
 }
 
-fn extract(folder: &str, extracted_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-    features::extract::main(folder, extracted_name)?;
-    println!("Extracted with success");
-    Ok(())
-}
-
 fn main() {
-    loop {
-        let itens = ["Compactar", "Extrair", "Abrir interface"];
-        let selected = show_menu(&itens, true);
+    let cli = Cli::parse();
+    
+    let input_path = Path::new(&cli.input);
+    let output_file_name = &cli.output;
+    let selected_option = &cli.selected;
 
-        match selected {
-            1 => {
-                match (read_input("Qual o nome da pasta que deseja compactar?"), read_input("Qual será o nome do arquivo compactado?")) {
-                    (Ok(folder), Ok(compressed_file)) => {
-                        if let Err(e) = compress_and_read(&folder, &compressed_file)  {
-                            eprintln!("Erro ao comprimir: {:?}", e);
-                        }
-                    },
-                   (Err(_e),_) | (_, Err(_e)) => eprintln!("Erro ao ler o que você digitou")
-                }
-            },
-            2 => {
-                match (read_input("Qual é o nome do arquivo que será extraido?"), read_input("Qual será o nome do arquivo extraido?")) {
-                    (Ok(folder), Ok(extracted_name)) => {
-                        if let Err(e) = extract(&folder, &extracted_name) {
-                            eprintln!("Erro ao extrair: {:?}", e);
-                        }
-                    },
-                    (Err(_e), _) | (_,Err(_e)) => eprintln!("Erro ao ler o que digitou")
-                }
-            },
-            3 => {
-                interface::main();
-            }
-            _ => exit(0)
+    match selected_option.as_str() {
+        "compress" => {
+            compress_and_read(input_path, output_file_name).expect("Error compressing files");
+        },
+        _ => {
+            eprintln!("Invalid option: {}", cli.selected);
+            std::process::exit(1);
         }
     }
 }
